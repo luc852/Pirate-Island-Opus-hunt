@@ -1,0 +1,14 @@
+# Only web/ is served (see vercel.json outputDirectory). Keep everything else
+# out of the upload: the game source, the design mockups, and the local roster.
+*.py
+*.bat
+*.dc.html
+pirate-island-redesign.html
+canvas.json
+scores.json
+requirements.txt
+assets/
+build/
+__pycache__/
+*.bak
+launch_error.log
