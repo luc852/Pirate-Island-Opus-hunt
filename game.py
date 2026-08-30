@@ -1,4 +1,4 @@
-import sys
+import asyncio
 import math
 import pygame
 
@@ -88,6 +88,8 @@ class Game:
         self.coin_icon = pygame.transform.smoothscale(self.coin_frames[0], (24, 24))
         self.scores = data.load_scores()
 
+        self.running = True
+        self.last_resize = None
         self.state = TITLE
         self.mouse = (0, 0)
         self.player_name = None
@@ -218,10 +220,18 @@ class Game:
     def handle_events(self):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit(0)
+                self.running = False
+                return
             elif event.type == pygame.VIDEORESIZE:
-                self.window = pygame.display.set_mode((event.w, event.h), pygame.RESIZABLE)
+                # Rebuild only on a genuinely new size. Calling set_mode for
+                # every event makes the browser canvas oscillate: each call
+                # resizes the canvas, which fires another resize, and the game
+                # spends every frame re-creating the display instead of
+                # reading input.
+                size = (event.w, event.h)
+                if size != self.window.get_size() and size != self.last_resize:
+                    self.last_resize = size
+                    self.window = pygame.display.set_mode(size, pygame.RESIZABLE)
             elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                 self.handle_click(self.to_logical_pos(event.pos))
             elif event.type == pygame.MOUSEWHEEL and self.state == TITLE:
@@ -229,10 +239,22 @@ class Game:
             elif event.type == pygame.KEYDOWN and self.state == TITLE:
                 self.handle_title_key(event)
 
-    def to_logical_pos(self, pos):
+    def viewport(self):
+        """The largest 900x600-shaped rectangle that fits, centred.
+
+        The browser hands us a canvas of whatever shape the page is, and a
+        resized desktop window is no different: scaling to fill either one
+        stretches the pirates. Letterbox instead.
+        """
         ww, wh = self.window.get_size()
-        sx, sy = LOGICAL_W / ww, LOGICAL_H / wh
-        return (pos[0] * sx, pos[1] * sy)
+        scale = min(ww / LOGICAL_W, wh / LOGICAL_H)
+        w = max(1, int(LOGICAL_W * scale))
+        h = max(1, int(LOGICAL_H * scale))
+        return (ww - w) // 2, (wh - h) // 2, w, h
+
+    def to_logical_pos(self, pos):
+        ox, oy, w, h = self.viewport()
+        return ((pos[0] - ox) * LOGICAL_W / w, (pos[1] - oy) * LOGICAL_H / h)
 
     def handle_click(self, pos):
         if self.state == TITLE:
@@ -458,6 +480,7 @@ class Game:
         # Last, so the open list floats over the panel and the button.
         self.combo.draw_list(self.surface, self.font_small, self.mouse)
 
+
     def draw_best_banner(self, cy):
         best = self.scores["overall_best"]
         if best["name"]:
@@ -572,16 +595,25 @@ class Game:
         elif self.state == GAME_OVER:
             self.draw_end_screen(won=False)
 
-        ww, wh = self.window.get_size()
-        scaled = pygame.transform.smoothscale(self.surface, (ww, wh))
-        self.window.blit(scaled, (0, 0))
+        ox, oy, w, h = self.viewport()
+        if (ox, oy) != (0, 0):
+            self.window.fill(SEA_STOPS[-1][1])
+        # smoothscale costs tens of milliseconds per frame in WebAssembly,
+        # which starves input; plain scale is nearest-neighbour but cheap.
+        resize = pygame.transform.scale if data.IS_WEB else pygame.transform.smoothscale
+        self.window.blit(resize(self.surface, (w, h)), (ox, oy))
         pygame.display.flip()
 
     # ----------------------------------------------------------------- run
-    def run(self):
-        while True:
+    async def run(self):
+        while self.running:
             dt = self.clock.tick(FPS) / 1000.0
             dt = min(dt, 0.05)
             self.handle_events()
+            if not self.running:
+                break
             self.update(dt)
             self.draw()
+            # Hands the frame back to the browser's event loop; a no-op on desktop.
+            await asyncio.sleep(0)
+        pygame.quit()

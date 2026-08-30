@@ -1,12 +1,21 @@
-"""Score persistence: load/save scores.json in the project folder.
+"""Score persistence.
 
 The roster is open-ended: any name a player types is registered on the spot,
 and names are matched case-insensitively so "luc" and "Luc" are one pirate.
+
+Where the roster lives depends on where the game is running. On the desktop it
+is scores.json beside the code. Compiled to WebAssembly there is no writable
+disk, so it goes to the browser's localStorage instead - which means the roster
+is shared by everyone using that browser profile, and by no one else.
 """
 import json
 import os
+import sys
+
+IS_WEB = sys.platform == "emscripten"
 
 SCORES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scores.json")
+STORAGE_KEY = "pirate-island-coin-hunt/scores"
 
 MAX_NAME_LEN = 14
 
@@ -21,13 +30,44 @@ def clean_name(raw):
     return " ".join(str(raw).split())[:MAX_NAME_LEN]
 
 
-def load_scores():
+def read_raw():
+    """The stored roster as JSON text, or None when nothing has been saved."""
+    if IS_WEB:
+        import platform
+        return platform.window.localStorage.getItem(STORAGE_KEY)
     if not os.path.exists(SCORES_PATH):
-        return json.loads(json.dumps(DEFAULT_DATA))
+        return None
     try:
         with open(SCORES_PATH, "r") as f:
-            loaded = json.load(f)
-    except (json.JSONDecodeError, OSError):
+            return f.read()
+    except OSError:
+        return None
+
+
+def write_raw(text):
+    """Persist the roster. Never raises: a lost score beats a crashed game."""
+    try:
+        if IS_WEB:
+            import platform
+            platform.window.localStorage.setItem(STORAGE_KEY, text)
+        else:
+            with open(SCORES_PATH, "w") as f:
+                f.write(text)
+        return True
+    except Exception:
+        # Private-browsing quotas, a read-only folder: play on regardless.
+        return False
+
+
+def load_scores():
+    raw = read_raw()
+    if not raw:
+        return json.loads(json.dumps(DEFAULT_DATA))
+    try:
+        loaded = json.loads(raw)
+    except (json.JSONDecodeError, TypeError, ValueError):
+        return json.loads(json.dumps(DEFAULT_DATA))
+    if not isinstance(loaded, dict):
         return json.loads(json.dumps(DEFAULT_DATA))
 
     data = json.loads(json.dumps(DEFAULT_DATA))
@@ -54,8 +94,7 @@ def load_scores():
 
 
 def save_scores(data):
-    with open(SCORES_PATH, "w") as f:
-        json.dump(data, f, indent=2)
+    return write_raw(json.dumps(data, indent=2))
 
 
 def find_player(data, name):

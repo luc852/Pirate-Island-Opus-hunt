@@ -6,9 +6,10 @@ __pycache__/
 .claude/settings.local.json
 .vercel/
 
-# pygbag / WebAssembly build output
+# pygbag staging output (the shipped build lives in web/, which IS committed)
 build/
 *.apk
+!web/*.apk
 
 # Scratch and backup files
 *.bak
