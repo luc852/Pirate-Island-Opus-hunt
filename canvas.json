@@ -1,0 +1,115 @@
+{
+  "artboards": [
+    {
+      "file": "Current.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 900,
+      "h": 600,
+      "title": "Now — gameplay",
+      "page": "page-1"
+    },
+    {
+      "file": "Main.dc.html",
+      "x": 960,
+      "y": 0,
+      "w": 900,
+      "h": 600,
+      "title": "Proposed — gameplay",
+      "page": "page-1"
+    },
+    {
+      "file": "Title.dc.html",
+      "x": 0,
+      "y": 700,
+      "w": 900,
+      "h": 600,
+      "title": "Title & crew select",
+      "page": "page-1"
+    },
+    {
+      "file": "Complete.dc.html",
+      "x": 960,
+      "y": 700,
+      "w": 900,
+      "h": 600,
+      "title": "Island cleared",
+      "page": "page-1"
+    },
+    {
+      "file": "GameOver.dc.html",
+      "x": 1920,
+      "y": 700,
+      "w": 900,
+      "h": 600,
+      "title": "Run over",
+      "page": "page-1"
+    },
+    {
+      "file": "Tokens.dc.html",
+      "x": 0,
+      "y": 0,
+      "w": 880,
+      "h": 1040,
+      "title": "Colour & type",
+      "page": "page-2"
+    },
+    {
+      "file": "Parts.dc.html",
+      "x": 940,
+      "y": 0,
+      "w": 880,
+      "h": 1000,
+      "title": "Sprites & controls",
+      "page": "page-2"
+    }
+  ],
+  "annotations": [
+    {
+      "id": "note-before-after",
+      "x": 0,
+      "y": -170,
+      "w": 420,
+      "text": "Left is the game exactly as it ships today, redrawn from the source.\n\nRight is the same level, same 21x13 grid, same 900x600 surface — only the drawing changes.",
+      "page": "page-1"
+    },
+    {
+      "id": "note-hud",
+      "x": 960,
+      "y": -170,
+      "w": 420,
+      "text": "HUD rebuilt as four labelled zones instead of hard-coded x offsets at 20 / 260 / 410.\n\nScore is the real addition: today it exists only on the end screens, so the whole reward loop is invisible while you actually play.",
+      "page": "page-1"
+    },
+    {
+      "id": "note-scope",
+      "x": 1920,
+      "y": 0,
+      "w": 380,
+      "text": "Nothing here touches levels.py, the collision code, or the 40px tile grid.\n\nEvery change lives in the draw_* methods and the sprite draw() calls, plus two font files.",
+      "page": "page-1"
+    },
+    {
+      "id": "note-button-bug",
+      "x": 2880,
+      "y": 700,
+      "w": 380,
+      "text": "Spotted while reading game.py: retry_button is built with the label \"Play Again\", but draw_end_screen overwrites it to \"Back to Title\" on every frame — so \"Play Again\" never actually appears on screen.",
+      "page": "page-1"
+    }
+  ],
+  "launch": {
+    "view": "canvas",
+    "page": "page-2"
+  },
+  "pages": [
+    {
+      "id": "page-1",
+      "name": "Screens"
+    },
+    {
+      "id": "page-2",
+      "name": "System"
+    }
+  ]
+}

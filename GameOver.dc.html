@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&display=swap">
+  <style>
+    body { margin: 0; background: #d8d3c8; }
+    a { color: #b45309; } a:hover { color: #92400e; }
+  </style>
+</helmet>
+
+<div style="position: relative; width: 900px; height: 600px; overflow: hidden; background: {{bg}}; font-family: 'Nunito', 'Segoe UI', sans-serif;">
+
+  <sc-for list="{{waves}}" as="w" hint-placeholder-count="5">
+    <div style="position: absolute; left: {{w.x}}px; top: {{w.y}}px; width: {{w.len}}px; height: 4px; border-radius: 2px; background: rgba(255,255,255,{{w.a}});"></div>
+  </sc-for>
+
+  <div style="position: absolute; left: 170px; top: 52px; width: 560px; box-sizing: border-box; padding: 26px 36px 28px; border-radius: 24px; background: #FFFAEB; box-shadow: 0 6px 0 rgba(90,60,30,0.9), 0 22px 44px rgba(0,0,0,0.4); border: 4px solid {{accent}};">
+
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 3px;">
+      <sc-if value="{{won}}" hint-placeholder-val="{{true}}">
+        <svg width="54" height="54" viewBox="0 0 52 52">
+          <circle cx="26" cy="26" r="24" fill="#E4F5E6"></circle>
+          <path d="M 15 27 l 8 8 l 15 -17" fill="none" stroke="#3C9646" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"></path>
+        </svg>
+      </sc-if>
+      <sc-if value="{{lost}}" hint-placeholder-val="{{false}}">
+        <svg width="54" height="54" viewBox="0 0 52 52">
+          <circle cx="26" cy="26" r="24" fill="#F7E3E3"></circle>
+          <circle cx="19" cy="22" r="4.4" fill="#AA4646"></circle>
+          <circle cx="33" cy="22" r="4.4" fill="#AA4646"></circle>
+          <path d="M 17 37 Q 26 30 35 37" fill="none" stroke="#AA4646" stroke-width="4.6" stroke-linecap="round"></path>
+        </svg>
+      </sc-if>
+      <div style="font-family: 'Baloo 2', 'Trebuchet MS', sans-serif; font-size: 44px; font-weight: 800; color: {{accent}}; line-height: 1.1;">{{title}}</div>
+      <div style="max-width: 400px; text-align: center; font-size: 15px; font-weight: 700; color: #6B5A48; text-wrap: pretty;">{{blurb}}</div>
+    </div>
+
+    <div style="margin-top: 20px; display: flex; gap: 12px;">
+      <div style="flex-grow: 1; padding: 14px 18px; border-radius: 16px; background: #F6EEDA;">
+        <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.14em; color: #8A6A44;">FINAL SCORE</div>
+        <div style="margin-top: 2px; font-family: 'Baloo 2', 'Trebuchet MS', sans-serif; font-size: 38px; font-weight: 800; color: #322820; line-height: 1;">{{score}}</div>
+      </div>
+      <div style="flex-grow: 1; padding: 14px 18px; border-radius: 16px; background: #F6EEDA;">
+        <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.14em; color: #8A6A44;">LUC&rsquo;S BEST</div>
+        <div style="margin-top: 2px; display: flex; align-items: baseline; gap: 8px;">
+          <span style="font-family: 'Baloo 2', 'Trebuchet MS', sans-serif; font-size: 38px; font-weight: 800; color: #322820; line-height: 1;">170</span>
+          <span style="font-size: 12px; font-weight: 800; color: {{deltaColor}};">{{delta}}</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- leaderboard: ranked and weighted, not three lines of text with a > marker -->
+    <div style="margin-top: 18px;">
+      <div style="font-size: 10px; font-weight: 800; letter-spacing: 0.14em; color: #8A6A44;">ISLAND LEADERBOARD</div>
+      <div style="margin-top: 9px; display: flex; flex-direction: column; gap: 7px;">
+        <sc-for list="{{board}}" as="b" hint-placeholder-count="3">
+          <div style="display: flex; align-items: center; gap: 11px; padding: 7px 12px; border-radius: 13px; background: {{b.rowBg}};">
+            <span style="display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 11px; background: {{b.rankBg}}; font-size: 12px; font-weight: 800; color: {{b.rankInk}};">{{b.rank}}</span>
+            <sc-if value="{{b.braided}}" hint-placeholder-val="{{false}}">
+              <svg width="26" height="26" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="{{b.tint}}"></circle>
+                <path d="M 20 5.4 C 28.4 5.4 32.4 11.8 32.3 19.4 C 32.1 21.8 31.7 23.4 31.1 24.8 C 30.3 21.4 29.8 17.2 28 14.2 C 26.1 11 24 10 20 10 C 16 10 13.9 11 12 14.2 C 10.2 17.2 9.7 21.4 8.9 24.8 C 8.3 23.4 7.9 21.8 7.7 19.4 C 7.6 11.8 11.6 5.4 20 5.4 Z" fill="#5E3A22"></path>
+                <circle cx="20" cy="25" r="12.4" fill="#C44A3A"></circle>
+                <circle cx="20" cy="17" r="10" fill="#FFD6AA"></circle>
+                <path d="M 10.4 14 C 8.9 16.8 8.2 19 7.6 22 C 7.1 25 6.8 27 6.8 29.4 L 10.3 29.6 C 10.3 27.2 10.6 25 11.1 22.2 C 11.6 19.4 12.4 16.8 13.8 14.6 Z" fill="#6E4327"></path>
+                <path d="M 6.8 28.8 L 10.3 29 L 10.3 31 L 6.8 30.8 Z" fill="{{b.bandana}}"></path>
+                <path d="M 10 15 a 10 10 0 0 1 20 0 z" fill="{{b.bandana}}"></path>
+                <circle cx="16.4" cy="19" r="2.3" fill="#241814"></circle>
+                <circle cx="23.6" cy="19" r="2.3" fill="#241814"></circle>
+              </svg>
+            </sc-if>
+            <sc-if value="{{b.plain}}" hint-placeholder-val="{{true}}">
+              <svg width="26" height="26" viewBox="0 0 40 40">
+                <circle cx="20" cy="20" r="18" fill="{{b.tint}}"></circle>
+                <circle cx="20" cy="25" r="12.4" fill="#C44A3A"></circle>
+                <circle cx="20" cy="17" r="10" fill="#FFD6AA"></circle>
+                <path d="M 10 15 a 10 10 0 0 1 20 0 z" fill="{{b.bandana}}"></path>
+                <circle cx="16.4" cy="19" r="2.3" fill="#241814"></circle>
+                <circle cx="23.6" cy="19" r="2.3" fill="#241814"></circle>
+              </svg>
+            </sc-if>
+            <span style="width: 76px; font-size: 15px; font-weight: 800; color: #322820;">{{b.name}}</span>
+            <span style="flex-grow: 1; height: 9px; border-radius: 5px; background: rgba(88,62,34,0.14);">
+              <span style="display: block; width: {{b.pct}}%; height: 9px; border-radius: 5px; background: {{b.barFill}};"></span>
+            </span>
+            <span style="width: 44px; text-align: right; font-family: 'Baloo 2', 'Trebuchet MS', sans-serif; font-size: 19px; font-weight: 800; color: #322820;">{{b.score}}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+
+    <div style="margin-top: 22px; display: flex; justify-content: center;">
+      <div style="display: flex; align-items: center; justify-content: center; gap: 9px; width: 232px; height: 54px; border-radius: 18px; background: linear-gradient(180deg, #F7CE47 0%, #DEA82E 100%); box-shadow: 0 5px 0 #A9720F, 0 12px 20px rgba(0,0,0,0.26); border: 3px solid #7A4E12; box-sizing: border-box;">
+        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#322820" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M 20 11 a 8 8 0 1 1 -2.6 -5.9"></path>
+          <path d="M 20 4 v 5 h -5"></path>
+        </svg>
+        <span style="font-family: 'Baloo 2', 'Trebuchet MS', sans-serif; font-size: 23px; font-weight: 800; color: #322820;">Back to title</span>
+      </div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"won":{"editor":"boolean","default":false,"section":"Outcome"}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const won = this.props.won ?? false;
+    const score = won ? 750 : 130;
+
+    // Real scores.json values; the played run is scored against Luc's best of 170.
+    const raw = [
+      { name: 'Marion', score: 330, bandana: '#8A5BC4', tint: '#E9E0F7', braided: true },
+      { name: 'Luc', score: 170, bandana: '#C82828', tint: '#FADFDA', braided: false },
+      { name: 'Adrien', score: 0, bandana: '#3E8FBF', tint: '#DCEFF7', braided: false }
+    ];
+    const top = Math.max(...raw.map((r) => r.score)) || 1;
+    const rankBgs = ['#DEA82E', '#C9C3B6', '#D8B48A'];
+    const board = raw.map((r, i) => ({
+      ...r,
+      plain: !r.braided,
+      rank: i + 1,
+      pct: Math.round((r.score / top) * 100),
+      rankBg: rankBgs[i],
+      rankInk: '#3B2A12',
+      rowBg: r.name === 'Luc' ? '#FBEFD3' : '#F6EEDA',
+      barFill: r.name === 'Luc' ? 'linear-gradient(90deg, #F7CE47, #DEA82E)' : 'rgba(88,62,34,0.42)'
+    }));
+
+    let seed = 909;
+    const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    const waves = [];
+    for (let i = 0; i < 22; i++) {
+      waves.push({
+        x: Math.floor(rnd() * 860),
+        y: 20 + Math.floor(rnd() * 560),
+        len: 20 + Math.floor(rnd() * 44),
+        a: (0.05 + rnd() * 0.09).toFixed(2)
+      });
+    }
+
+    const beat = score - 170;
+    return {
+      won, lost: !won, score, board, waves,
+      title: won ? 'You win, matey!' : 'Game over',
+      blurb: won
+        ? 'You collected all the treasure on every island!'
+        : 'Better luck next time, sailor. Take a breath and try again!',
+      accent: won ? '#3C9646' : '#AA4646',
+      bg: won
+        ? 'linear-gradient(180deg, #5FB2D6 0%, #2E86AB 55%, #1B6389 100%)'
+        : 'linear-gradient(180deg, #46596B 0%, #33455A 55%, #22303F 100%)',
+      delta: beat > 0 ? '+' + beat + ' new best' : beat + ' this run',
+      deltaColor: beat > 0 ? '#3C9646' : '#8A6A44'
+    };
+  }
+}
+</script>
+</body>
+</html>

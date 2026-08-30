@@ -1,0 +1,167 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@600;700;800&display=swap">
+  <style>
+    body { margin: 0; background: #d8d3c8; }
+    a { color: #b45309; } a:hover { color: #92400e; }
+  </style>
+</helmet>
+
+<div style="width: 880px; box-sizing: border-box; padding: 36px 40px 40px; background: #FFFAEB; font-family: 'Nunito', 'Segoe UI', sans-serif; color: #322820;">
+
+  <div style="font-family: 'Baloo 2', 'Trebuchet MS', sans-serif; font-size: 34px; font-weight: 800; line-height: 1.1;">Colour &amp; type</div>
+  <div style="margin-top: 4px; font-size: 14px; font-weight: 700; color: #6B5A48;">Names in mono match the constants in <span style="font-family: ui-monospace, Consolas, monospace; font-size: 13px;">game.py</span> and <span style="font-family: ui-monospace, Consolas, monospace; font-size: 13px;">sprites.py</span>. Most of the palette already exists &mdash; the additions give it depth rather than replacing it.</div>
+
+  <div style="margin-top: 26px; display: flex; flex-direction: column; gap: 22px;">
+    <sc-for list="{{groups}}" as="g" hint-placeholder-count="5">
+      <div>
+        <div style="display: flex; align-items: baseline; gap: 10px;">
+          <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.14em; color: #8A6A44;">{{g.name}}</span>
+          <span style="font-size: 13px; font-weight: 700; color: #6B5A48;">{{g.note}}</span>
+        </div>
+        <div style="margin-top: 9px; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px;">
+          <sc-for list="{{g.swatches}}" as="s" hint-placeholder-count="5">
+            <div style="border-radius: 13px; overflow: hidden; background: #F6EEDA; box-shadow: 0 1px 0 rgba(88,62,34,0.14);">
+              <div style="height: 56px; background: {{s.hex}};"></div>
+              <div style="padding: 8px 10px 10px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
+                  <span style="font-family: ui-monospace, Consolas, monospace; font-size: 11px; font-weight: 700; color: #322820;">{{s.hex}}</span>
+                  <sc-if value="{{s.isNew}}" hint-placeholder-val="{{true}}">
+                    <span style="padding: 1px 5px; border-radius: 5px; background: #DEA82E; font-size: 8px; font-weight: 800; letter-spacing: 0.1em; color: #3B2A12;">NEW</span>
+                  </sc-if>
+                </div>
+                <div style="margin-top: 3px; font-size: 11px; font-weight: 700; color: #8A6A44;">{{s.label}}</div>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top: 34px; height: 2px; background: rgba(88,62,34,0.14); border-radius: 1px;"></div>
+
+  <div style="margin-top: 26px; display: flex; align-items: baseline; gap: 10px;">
+    <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.14em; color: #8A6A44;">TYPE</span>
+    <span style="font-size: 13px; font-weight: 700; color: #6B5A48;">Baloo&nbsp;2 for anything loud, Nunito for anything read. Both replace the Arial <span style="font-family: ui-monospace, Consolas, monospace; font-size: 12px;">SysFont</span> calls &mdash; load them with <span style="font-family: ui-monospace, Consolas, monospace; font-size: 12px;">pygame.font.Font(path, size)</span>.</span>
+  </div>
+
+  <div style="margin-top: 16px; display: flex; flex-direction: column; gap: 14px;">
+    <sc-for list="{{ramp}}" as="t" hint-placeholder-count="6">
+      <div style="display: flex; align-items: baseline; gap: 18px; padding-bottom: 13px; border-bottom: 2px solid rgba(88,62,34,0.1);">
+        <span style="width: 150px; flex-shrink: 0; font-size: 11px; font-weight: 800; letter-spacing: 0.1em; color: #8A6A44;">{{t.use}}</span>
+        <span style="flex-grow: 1; font-family: {{t.stack}}; font-size: {{t.px}}px; font-weight: {{t.weight}}; letter-spacing: {{t.ls}}; color: #322820; line-height: 1.1;">{{t.sample}}</span>
+        <span style="flex-shrink: 0; font-family: ui-monospace, Consolas, monospace; font-size: 11px; font-weight: 700; color: #6B5A48;">{{t.spec}}</span>
+      </div>
+    </sc-for>
+  </div>
+
+  <div style="margin-top: 30px; display: flex; align-items: baseline; gap: 10px;">
+    <span style="font-size: 11px; font-weight: 800; letter-spacing: 0.14em; color: #8A6A44;">GEOMETRY</span>
+    <span style="font-size: 13px; font-weight: 700; color: #6B5A48;">Unchanged from the shipped game, so nothing in the level or collision code moves.</span>
+  </div>
+
+  <div style="margin-top: 12px; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px;">
+    <sc-for list="{{geo}}" as="m" hint-placeholder-count="4">
+      <div style="padding: 14px 16px; border-radius: 14px; background: #F6EEDA;">
+        <div style="font-family: 'Baloo 2', 'Trebuchet MS', sans-serif; font-size: 26px; font-weight: 800; line-height: 1;">{{m.value}}</div>
+        <div style="margin-top: 4px; font-size: 11px; font-weight: 700; color: #8A6A44;">{{m.label}}</div>
+      </div>
+    </sc-for>
+  </div>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{"$preview":{"width":880,"height":1040}}'>
+class Component extends DCLogic {
+  renderVals() {
+    const groups = [
+      {
+        name: 'SEA',
+        note: 'one flat fill becomes a three-stop gradient',
+        swatches: [
+          { hex: '#4FA8CE', label: 'sea shallow', isNew: true },
+          { hex: '#3D9BC4', label: 'BG_SEA', isNew: false },
+          { hex: '#2E86AB', label: 'WATER_DEEP', isNew: false },
+          { hex: '#1B6389', label: 'sea deep', isNew: true },
+          { hex: '#33455A', label: 'dusk sea (game over)', isNew: true }
+        ]
+      },
+      {
+        name: 'SAND & WOOD',
+        note: 'crates get a light direction: warm top, cool bottom, hard drop',
+        swatches: [
+          { hex: '#EDC98A', label: 'SAND', isNew: false },
+          { hex: '#DFB873', label: 'SAND_DARK', isNew: false },
+          { hex: '#8A6647', label: 'crate top', isNew: true },
+          { hex: '#6E5037', label: 'crate bottom', isNew: true },
+          { hex: '#4E3625', label: 'crate drop', isNew: true }
+        ]
+      },
+      {
+        name: 'PARCHMENT & INK',
+        note: 'two extra ink steps end the all-INK flatness on panels',
+        swatches: [
+          { hex: '#FFFAEB', label: 'PANEL', isNew: false },
+          { hex: '#F6EEDA', label: 'panel inset', isNew: true },
+          { hex: '#322820', label: 'INK', isNew: false },
+          { hex: '#6B5A48', label: 'ink soft (body)', isNew: true },
+          { hex: '#8A6A44', label: 'ink label (caps)', isNew: true }
+        ]
+      },
+      {
+        name: 'GOLD & STATUS',
+        note: 'GOLD gains a lit and a shadow step so coins and buttons can be dimensional',
+        swatches: [
+          { hex: '#F7CE47', label: 'gold lit', isNew: true },
+          { hex: '#DEA82E', label: 'GOLD', isNew: false },
+          { hex: '#A9720F', label: 'gold shadow', isNew: true },
+          { hex: '#3C9646', label: 'success', isNew: false },
+          { hex: '#AA4646', label: 'danger', isNew: false }
+        ]
+      },
+      {
+        name: 'CREW & HAZARDS',
+        note: 'a bandana per player makes the select screen a face, not a name',
+        swatches: [
+          { hex: '#3E8FBF', label: 'Adrien', isNew: true },
+          { hex: '#C82828', label: 'Luc / bandana', isNew: false },
+          { hex: '#8A5BC4', label: 'Marion', isNew: true },
+          { hex: '#E24B54', label: 'heart', isNew: true },
+          { hex: '#14506E', label: 'tide pool rim', isNew: true }
+        ]
+      }
+    ];
+
+    const baloo = "'Baloo 2', 'Trebuchet MS', sans-serif";
+    const nunito = "'Nunito', 'Segoe UI', sans-serif";
+    const ramp = [
+      { use: 'GAME TITLE', sample: 'Coin Hunt', stack: baloo, px: 60, weight: 800, ls: 'normal', spec: 'Baloo 2 800 / 76' },
+      { use: 'SCREEN HEADING', sample: 'Island cleared!', stack: baloo, px: 40, weight: 800, ls: 'normal', spec: 'Baloo 2 800 / 44' },
+      { use: 'HUD & BUTTONS', sample: '3/8 · Set sail', stack: baloo, px: 24, weight: 800, ls: 'normal', spec: 'Baloo 2 800 / 24' },
+      { use: 'NAMES & ROWS', sample: 'Marion', stack: nunito, px: 15, weight: 800, ls: 'normal', spec: 'Nunito 800 / 15' },
+      { use: 'BODY', sample: 'Better luck next time, sailor.', stack: nunito, px: 15, weight: 700, ls: 'normal', spec: 'Nunito 700 / 15' },
+      { use: 'SECTION LABEL', sample: 'FINAL SCORE', stack: nunito, px: 11, weight: 800, ls: '0.14em', spec: 'Nunito 800 / 11 caps' }
+    ];
+
+    const geo = [
+      { value: '900 × 600', label: 'logical surface' },
+      { value: '60px', label: 'HUD height' },
+      { value: '40px', label: 'tile size' },
+      { value: '11 / 18 / 24', label: 'radius: crate / button / panel' }
+    ];
+
+    return { groups, ramp, geo };
+  }
+}
+</script>
+</body>
+</html>

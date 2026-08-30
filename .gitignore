@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Local editor / tooling state
+.claude/settings.local.json
+.vercel/
+
+# pygbag / WebAssembly build output
+build/
+*.apk
+
+# Scratch and backup files
+*.bak
+launch_error.log

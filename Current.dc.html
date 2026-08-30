@@ -1,0 +1,157 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; background: #d8d3c8; font-family: Arial, Helvetica, sans-serif; }
+    a { color: #b45309; } a:hover { color: #92400e; }
+  </style>
+</helmet>
+
+<div style="position: relative; width: 900px; height: 600px; overflow: hidden; background: #3D9BC4; font-family: Arial, Helvetica, sans-serif;">
+
+  <!-- island: flat sand rectangle, hard edge against the sea -->
+  <div style="position: absolute; left: 164px; top: 50px; width: 840px; height: 520px; background: #EDC98A; overflow: hidden">
+    <sc-for list="{{specks}}" as="s" hint-placeholder-count="40">
+      <div style="position: absolute; left: {{s.x}}px; top: {{s.y}}px; width: {{s.d}}px; height: {{s.d}}px; border-radius: 50%; background: #DFB873;"></div>
+    </sc-for>
+  </div>
+
+  <!-- walls -->
+  <sc-for list="{{walls}}" as="w" hint-placeholder-count="60">
+    <div style="position: absolute; left: {{w.sx}}px; top: {{w.sy}}px; width: 40px; height: 40px;">
+      <div style="position: absolute; left: 2px; top: 3px; width: 40px; height: 40px; border-radius: 10px; background: #563D2A;"></div>
+      <div style="position: absolute; left: 0; top: 0; width: 40px; height: 40px; border-radius: 10px; background: #78583E;"></div>
+      <div style="position: absolute; left: 7px; top: 7px; width: 26px; height: 26px; border-radius: 8px; background: #8C6C50;"></div>
+    </div>
+  </sc-for>
+
+  <!-- puddles -->
+  <sc-for list="{{puddles}}" as="p" hint-placeholder-count="3">
+    <div style="position: absolute; left: {{p.cx}}px; top: {{p.cy}}px; transform: translate(-50%, -50%);">
+      <svg width="34" height="24" viewBox="0 0 34 24">
+        <ellipse cx="17" cy="12" rx="17" ry="12" fill="#21688A"></ellipse>
+        <ellipse cx="17" cy="12" rx="14" ry="9" fill="#3A95BD"></ellipse>
+        <ellipse cx="17" cy="12" rx="7" ry="5" fill="none" stroke="#96D2E6" stroke-width="1"></ellipse>
+      </svg>
+    </div>
+  </sc-for>
+
+  <!-- coins (real Kenney sprite, 28px) -->
+  <sc-for list="{{coins}}" as="c" hint-placeholder-count="8">
+    <div style="position: absolute; left: {{c.cx}}px; top: {{c.cy}}px; transform: translate(-50%, -50%);">
+      <svg width="28" height="28" viewBox="0 0 28 28">
+        <circle cx="14" cy="14" r="13" fill="#C98A18"></circle>
+        <circle cx="14" cy="14" r="11" fill="#F2C230"></circle>
+        <circle cx="14" cy="14" r="7.5" fill="none" stroke="#C98A18" stroke-width="2"></circle>
+      </svg>
+    </div>
+  </sc-for>
+
+  <!-- monsters: colored blob, two eyes, foot bumps -->
+  <sc-for list="{{monsters}}" as="m" hint-placeholder-count="2">
+    <div style="position: absolute; left: {{m.cx}}px; top: {{m.cy}}px; transform: translate(-50%, -50%);">
+      <svg width="30" height="32" viewBox="0 0 30 32">
+        <ellipse cx="15" cy="27" rx="13" ry="4" fill="#00000022"></ellipse>
+        <circle cx="8" cy="26" r="3.6" fill="#469A50"></circle>
+        <circle cx="22" cy="26" r="3.6" fill="#469A50"></circle>
+        <ellipse cx="15" cy="18" rx="13" ry="12" fill="#469A50"></ellipse>
+        <ellipse cx="15" cy="15" rx="13" ry="12" fill="#6EC978"></ellipse>
+        <circle cx="10" cy="13" r="4.4" fill="#ffffff"></circle>
+        <circle cx="20" cy="13" r="4.4" fill="#ffffff"></circle>
+        <circle cx="9" cy="13" r="2.2" fill="#141414"></circle>
+        <circle cx="21" cy="13" r="2.2" fill="#141414"></circle>
+      </svg>
+    </div>
+  </sc-for>
+
+  <!-- player: red torso, skin head, red bandana -->
+  <div style="position: absolute; left: {{player.cx}}px; top: {{player.cy}}px; transform: translate(-50%, -50%);">
+    <svg width="34" height="36" viewBox="0 0 34 36">
+      <ellipse cx="17" cy="30" rx="13" ry="4" fill="#00000022"></ellipse>
+      <circle cx="17" cy="21" r="13" fill="#C44A3A"></circle>
+      <circle cx="17" cy="12" r="10" fill="#FFD6AA"></circle>
+      <ellipse cx="17" cy="7" rx="12" ry="5" fill="#C82828"></ellipse>
+      <circle cx="28" cy="12" r="4" fill="#C82828"></circle>
+      <circle cx="14" cy="13" r="2.4" fill="#1E1E1E"></circle>
+      <circle cx="20" cy="13" r="2.4" fill="#1E1E1E"></circle>
+      <path d="M 9 19 Q 17 25 25 19" fill="none" stroke="#3C281E" stroke-width="2.6"></path>
+    </svg>
+  </div>
+
+  <!-- HUD: flat beige strip, Arial, hard 3px rule -->
+  <div style="position: absolute; left: 0; top: 0; width: 900px; height: 60px; background: #DEC58C;"></div>
+  <div style="position: absolute; left: 0; top: 60px; width: 900px; height: 3px; background: #967850;"></div>
+
+  <div style="position: absolute; left: 20px; top: 16px; font-size: 28px; font-weight: bold; color: #322820; line-height: 32px;">Level 1/5</div>
+
+  <sc-for list="{{hearts}}" as="h" hint-placeholder-count="3">
+    <div style="position: absolute; left: {{h.x}}px; top: 17px;">
+      <svg width="26" height="26" viewBox="0 0 26 26">
+        <circle cx="6.5" cy="13" r="6.5" fill="{{h.fill}}"></circle>
+        <circle cx="19.5" cy="13" r="6.5" fill="{{h.fill}}"></circle>
+        <polygon points="0,13 13,26 26,13" fill="{{h.fill}}"></polygon>
+      </svg>
+    </div>
+  </sc-for>
+
+  <div style="position: absolute; left: 410px; top: 16px; font-size: 28px; font-weight: bold; color: #322820; line-height: 32px;">Coins: 1/8</div>
+  <div style="position: absolute; right: 20px; top: 20px; font-size: 20px; color: #322820; line-height: 23px;">Player: Luc</div>
+
+</div>
+</x-dc>
+
+<script data-dc-script data-props='{}'>
+class Component extends DCLogic {
+  renderVals() {
+    const GRID = [
+      '#####################',
+      '#P..........C.......#',
+      '#.#.#.#.#.#.#.#~#.#.#',
+      '#...C...#M..........#',
+      '#.#.#C#.#.#.#.###.#.#',
+      '#.........#....C..~C#',
+      '###.#.#.#.#.#.#.###.#',
+      '#..........C........#',
+      '#.#C###.#.#.#~#.#.#M#',
+      '#.........#.......#.#',
+      '#.#.#.#.#.#.#.#.#.#.#',
+      '#.........C.........#',
+      '#####################'
+    ];
+    const T = 40, OX = 30, OY = 70;
+    const walls = [], coins = [], puddles = [], monsters = [];
+    GRID.forEach((row, r) => {
+      row.split('').forEach((ch, c) => {
+        const sx = OX + c * T, sy = OY + r * T;
+        const cx = sx + T / 2, cy = sy + T / 2;
+        if (ch === '#') walls.push({ sx, sy });
+        else if (ch === 'C') coins.push({ cx, cy });
+        else if (ch === '~') puddles.push({ cx, cy });
+        else if (ch === 'M') monsters.push({ cx, cy });
+      });
+    });
+
+    // Sand speckles, mirroring draw_sand_background's seeded scatter.
+    let seed = 1234;
+    const rnd = () => { seed = (seed * 1103515245 + 12345) & 0x7fffffff; return seed / 0x7fffffff; };
+    const specks = [];
+    for (let i = 0; i < 91; i++) {
+      const d = 4 + Math.floor(rnd() * 5);
+      specks.push({ x: Math.floor(rnd() * 840), y: Math.floor(rnd() * 520), d });
+    }
+
+    const hearts = [0, 1, 2].map((i) => ({ x: 260 + i * 34 - 13, fill: '#DC3C46' }));
+
+    // Mid-board, two tiles left of the coin on row 7.
+    return { walls, coins, puddles, monsters, specks, hearts, player: { cx: OX + 9 * T + 20, cy: OY + 7 * T + 20 } };
+  }
+}
+</script>
+</body>
+</html>
