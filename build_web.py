@@ -19,7 +19,8 @@ ROOT = Path(__file__).parent.resolve()
 # Only the running game. Deliberately excludes the .dc.html design mockups, the
 # 2.3 MB redesign document, scores.json (the browser uses localStorage instead)
 # and .claude/, all of which pygbag would otherwise pack into the public bundle.
-GAME_FILES = ["main.py", "game.py", "sprites.py", "levels.py", "data.py", "ui.py"]
+GAME_FILES = ["main.py", "game.py", "sprites.py", "levels.py", "data.py", "ui.py",
+              "audio.py", "effects.py", "mysteries.py", "scoring.py"]
 GAME_DIRS = ["assets"]
 
 APP = "pirate-island-coin-hunt"
