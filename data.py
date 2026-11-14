@@ -11,6 +11,7 @@ is shared by everyone using that browser profile, and by no one else.
 import json
 import os
 import sys
+import time
 
 IS_WEB = sys.platform == "emscripten"
 
@@ -18,11 +19,19 @@ SCORES_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), "scores.j
 STORAGE_KEY = "pirate-island-coin-hunt/scores"
 
 MAX_NAME_LEN = 14
+MAX_RUNS = 10
 
 DEFAULT_DATA = {
     "players": {},
     "overall_best": {"name": "", "score": 0},
+    # The ten best voyages ever sailed, with how they were won.
+    "runs": [],
 }
+
+
+def new_entry():
+    return {"best_score": 0, "games_played": 0, "best_combo": 0,
+            "chests": 0, "legend": False}
 
 
 def clean_name(raw):
@@ -78,16 +87,46 @@ def load_scores():
         try:
             best = int(entry.get("best_score", 0))
             games = int(entry.get("games_played", 0))
+            combo = int(entry.get("best_combo", 0))
+            chests = int(entry.get("chests", 0))
+            legend = bool(entry.get("legend", False))
         except (AttributeError, TypeError, ValueError):
             continue
         # A file edited by hand may hold two spellings of one pirate; fold them.
         existing = find_player(data, name)
         if existing:
-            data["players"][existing]["best_score"] = max(
-                data["players"][existing]["best_score"], best)
-            data["players"][existing]["games_played"] += games
+            e = data["players"][existing]
+            e["best_score"] = max(e["best_score"], best)
+            e["games_played"] += games
+            e["best_combo"] = max(e["best_combo"], combo)
+            e["chests"] = max(e["chests"], chests)
+            e["legend"] = e["legend"] or legend
         else:
-            data["players"][name] = {"best_score": best, "games_played": games}
+            e = new_entry()
+            e.update(best_score=best, games_played=games, best_combo=combo,
+                     chests=chests, legend=legend)
+            data["players"][name] = e
+
+    for run in loaded.get("runs") or []:
+        try:
+            clean = {"name": clean_name(run["name"]), "score": int(run["score"]),
+                     "islands": int(run.get("islands", 0)),
+                     "chests": int(run.get("chests", 0)),
+                     "combo": int(run.get("combo", 0)),
+                     "legend": bool(run.get("legend", False)),
+                     "date": str(run.get("date", ""))[:10]}
+        except (KeyError, TypeError, ValueError, AttributeError):
+            continue
+        if clean["name"]:
+            data["runs"].append(clean)
+    if "runs" not in loaded:
+        # A roster saved before voyages were recorded: seed the table with each
+        # pirate's best so the Hall of Fame is not empty on first launch.
+        for name, e in data["players"].items():
+            if e["best_score"] > 0:
+                data["runs"].append({"name": name, "score": e["best_score"], "islands": 0,
+                                     "chests": 0, "combo": 0, "legend": False, "date": ""})
+    data["runs"] = sorted(data["runs"], key=lambda r: -r["score"])[:MAX_RUNS]
 
     refresh_overall_best(data)
     return data
@@ -123,7 +162,7 @@ def register_player(data, name):
     if existing:
         return existing
     name = clean_name(name)
-    data["players"][name] = {"best_score": 0, "games_played": 0}
+    data["players"][name] = new_entry()
     return name
 
 
@@ -138,13 +177,44 @@ def ranking(data):
                   key=lambda pair: (-pair[1], pair[0].lower()))
 
 
-def record_score(data, player_name, score):
-    """Register the pirate if needed, then keep their best run and the overall best."""
+def record_score(data, player_name, score, run=None):
+    """Register the pirate if needed, then keep their best run and the overall best.
+
+    `run` optionally describes the voyage (islands, chests, combo, legend); it
+    feeds the per-pirate records and the top-ten voyages table.
+    """
     name = register_player(data, player_name)
     entry = data["players"][name]
     entry["games_played"] += 1
     if score > entry["best_score"]:
         entry["best_score"] = score
+    run = run or {}
+    entry["best_combo"] = max(entry.get("best_combo", 0), int(run.get("combo", 0)))
+    entry["chests"] = max(entry.get("chests", 0), int(run.get("chests", 0)))
+    entry["legend"] = bool(entry.get("legend")) or bool(run.get("legend"))
+    if score > 0:
+        data.setdefault("runs", []).append({
+            "name": name, "score": score,
+            "islands": int(run.get("islands", 0)),
+            "chests": int(run.get("chests", 0)),
+            "combo": int(run.get("combo", 0)),
+            "legend": bool(run.get("legend", False)),
+            "date": time.strftime("%Y-%m-%d"),
+        })
+        data["runs"] = sorted(data["runs"], key=lambda r: -r["score"])[:MAX_RUNS]
     refresh_overall_best(data)
     save_scores(data)
     return data
+
+
+def run_rank(data, name, score):
+    """1-based place of this exact voyage in the top ten, or None."""
+    for i, r in enumerate(data.get("runs", [])):
+        if r["name"] == name and r["score"] == score:
+            return i + 1
+    return None
+
+
+def player_entry(data, name):
+    existing = find_player(data, name)
+    return data["players"][existing] if existing else new_entry()

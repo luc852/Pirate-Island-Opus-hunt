@@ -255,7 +255,9 @@ class Player:
     def _is_free(self, x, y, wall_rects, bounds):
         r = self.radius
         hitbox = pygame.Rect(x - r, y - r, r * 2, r * 2)
-        return bounds.contains(hitbox) and not any(hitbox.colliderect(w) for w in wall_rects)
+        # collidelist runs in C; a Python generator here was the hottest loop
+        # in the WebAssembly build.
+        return bounds.contains(hitbox) and hitbox.collidelist(wall_rects) == -1
 
     def _step(self, dx, dy, wall_rects, bounds):
         """Move one axis if the destination is clear. Returns True if we moved."""
@@ -413,7 +415,7 @@ class Monster:
         hitbox = pygame.Rect(nx - r, ny - r, r * 2, r * 2)
         if not bounds.contains(hitbox):
             return True
-        return any(hitbox.colliderect(w) for w in wall_rects)
+        return hitbox.collidelist(wall_rects) != -1
 
     def _try_axis_move(self, dx, dy, wall_rects, bounds):
         moved = False
@@ -512,7 +514,23 @@ def _heart_points(cx, cy, size, steps=30):
     return pts
 
 
+_heart_cache = {}
+
+
 def draw_heart(surface, x, y, size, filled=True):
+    """Hearts are drawn every frame in the HUD, so each size is rendered once
+    and blitted; the parametric outline costs hundreds of trig calls."""
+    key = (size, filled)
+    sprite = _heart_cache.get(key)
+    if sprite is None:
+        pad = int(size * 0.75)
+        sprite = pygame.Surface((pad * 2, pad * 2), pygame.SRCALPHA)
+        _draw_heart_shape(sprite, pad, pad, size, filled)
+        _heart_cache[key] = sprite
+    surface.blit(sprite, sprite.get_rect(center=(int(x), int(y))))
+
+
+def _draw_heart_shape(surface, x, y, size, filled=True):
     fill = HEART_FILL if filled else HEART_EMPTY
     shade = HEART_SHADE if filled else HEART_EMPTY_SHADE
     pygame.draw.polygon(surface, shade, _heart_points(x, y + size * 0.06, size))
